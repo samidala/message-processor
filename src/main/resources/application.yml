@@ -1,0 +1,56 @@
+server:
+  port: 9090  # or any free port you want
+spring:
+  main:
+    web-application-type: servlet
+  application:
+    name: message-processor
+
+#  config:
+#    import: optional:aws-secretsmanager:/prod/message-processor/secrets
+#  cloud:
+#    aws:
+#      secretsmanager:
+#        enabled: ${AWS_SECRETS_ENABLED:false}
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        acknowledge-mode: manual
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/mydb}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    topic:
+      name: test-topic
+resilience4j:
+  circuitbreaker:
+    instances:
+      kafkaPublisher:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
