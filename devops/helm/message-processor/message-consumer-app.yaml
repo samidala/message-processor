@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/your-org/your-repo.git'
+    repoURL: 'https://github.com/samidala/message-processor.git'
     targetRevision: main
-    path: devops/k8s
+    path: devops/helm/message-processor
     helm:
       valueFiles:
         - values.yaml
