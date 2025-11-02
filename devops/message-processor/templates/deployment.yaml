@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "message-processor.fullname" . }}
+  labels:
+    app: {{ include "message-processor.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "message-processor.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "message-processor.name" . }}
+      {{- if .Values.prometheus.enabled }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: {{ .Values.prometheus.path | quote }}
+        prometheus.io/port: {{ .Values.prometheus.port | quote }}
+      {{- end }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: AWS_SECRETS_ENABLED
+              value: {{ .Values.env.awsSecretsEnabled | quote }}
+            - name: RABBITMQ_HOST
+              value: {{ .Values.env.rabbitmqHost | quote }}
+            - name: RABBITMQ_PORT
+              value: {{ .Values.env.rabbitmqPort | quote }}
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "message-processor.fullname" . }}-secrets
+                  key: rabbitmq-username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "message-processor.fullname" . }}-secrets
+                  key: rabbitmq-password
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.env.kafkaBootstrapServers | quote }}
+            - name: DB_URL
+              value: {{ .Values.env.dbUrl | quote }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "message-processor.fullname" . }}-secrets
+                  key: db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "message-processor.fullname" . }}-secrets
+                  key: db-password
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

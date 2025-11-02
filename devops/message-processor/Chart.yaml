@@ -1,0 +1,6 @@
+apiVersion: v2
+name: message-processor
+description: Helm chart for the message processor service (RabbitMQ → Kafka)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

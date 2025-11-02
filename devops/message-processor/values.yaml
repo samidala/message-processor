@@ -1,0 +1,36 @@
+replicaCount: 4
+
+image:
+  repository: message-processor
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 9090
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+env:
+  awsSecretsEnabled: "false"
+  rabbitmqHost: "rabbitmq"
+  rabbitmqPort: "5672"
+  kafkaBootstrapServers: "host.minikube.internal:9092"
+  dbUrl: "jdbc:postgresql://postgres:5432/mydb"
+
+secretValues:
+  rabbitmqUsername: "guest"
+  rabbitmqPassword: "guest"
+  dbUsername: "postgres"
+  dbPassword: "postgres"
+
+prometheus:
+  enabled: true
+  path: /actuator/prometheus
+  port: 9090
