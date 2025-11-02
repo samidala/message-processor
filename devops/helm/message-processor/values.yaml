@@ -19,7 +19,7 @@ resources:
 
 env:
   awsSecretsEnabled: "false"
-  rabbitmqHost: "localhost"
+  rabbitmqHost: "rabbitmq"
   rabbitmqPort: "5672"
   kafkaBootstrapServers: "host.minikube.internal:9092"
   dbUrl: "jdbc:postgresql://postgres:5432/mydb"
